@@ -1,13 +1,7 @@
 from django.db import models
 from accounts.models import UserBankAccount
+from .contants import TRANSACTION_TYPE
 # Create your models here.
-
-TRANSACTION_TYPE = (
-    (1, 'Deposit'),
-    (2, 'Withdrawal'),
-    (3, 'Loan'),
-    (4, 'Loan paid')
-)
 
 
 class Transactions(models.Model):
