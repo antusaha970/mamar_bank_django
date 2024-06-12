@@ -8,6 +8,7 @@ colorama
 crispy-bootstrap5
 cssbeautifier
 distlib
+dj-database-url
 Django
 django-crispy-forms
 django-environ
@@ -45,6 +46,7 @@ six
 sqlparse
 tabulate
 tqdm
+typing_extensions
 tzdata
 urllib3
-virtualenv
+virtualen
