@@ -9,10 +9,24 @@ from django.db.models import Sum
 from django.views import View
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
+from django.core.mail import EmailMessage, EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from .models import Transactions
 from .contants import DEPOSIT, LOAN, LOAN_PAID, WITHDRAWAL
 from .forms import DepositForm, WithdrawalForm, LoanRequestForm
 # Create your views here.
+
+
+def send_main_to_user(subject, user, amount, template_name):
+    message = render_to_string(template_name, {
+        'user': user,
+        'amount': amount
+    })
+    send_mail = EmailMultiAlternatives(
+        subject, '', to=[user.email])
+    send_mail.attach_alternative(message, 'text/html')
+    send_mail.send()
 
 
 class TransactionCreateMixin(LoginRequiredMixin, CreateView):
@@ -54,6 +68,8 @@ class DepositMoneyView(TransactionCreateMixin):
         account.save(update_fields=['balance'])
         messages.success(self.request, f"""{
                          amount} is deposited to your account """)
+        send_main_to_user("Deposit conformation", self.request.user,
+                          amount, "transactions/deposit_mail.html")
         return super().form_valid(form)
 
 
@@ -78,6 +94,8 @@ class WithdrawalMoneyView(TransactionCreateMixin):
 
         messages.success(self.request, f"""{
                          amount} is withdrawn from your account """)
+        send_main_to_user("Withdrawal notice", self.request.user,
+                          amount, "transactions/withdrawal_mail.html")
         return super().form_valid(form)
 
 
@@ -103,6 +121,8 @@ class LoanMoneyView(TransactionCreateMixin):
 
         messages.success(self.request, f"""Loan request for {
                          amount} successfully sent""")
+        send_main_to_user("Loan request notice", self.request.user,
+                          amount, "transactions/loan_mail.html")
         return super().form_valid(form)
 
 
